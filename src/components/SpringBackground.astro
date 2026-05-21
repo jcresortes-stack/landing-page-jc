@@ -257,23 +257,43 @@ const { fogColor = "#1a1a18" } = Astro.props;
     );
     if (canvas.parentElement) io.observe(canvas.parentElement);
 
-    // ── Cleanup on page unload ──────────────────────────────────────────────
-    window.addEventListener(
-      "pagehide",
-      () => {
-        stopLoop();
-        resizeObserver.disconnect();
-        io.disconnect();
-        geometries.forEach((g) => g.dispose());
-        items.forEach((item) =>
-          (item.mesh.material as THREE.Material).dispose(),
-        );
-        materials.forEach((m) => m.dispose());
-        renderer.forceContextLoss();
-        renderer.dispose();
-      },
-      { once: true },
-    );
+    // ── Cleanup on page unload (bfcache-safe) ──────────────────────────────
+    function setupCleanup() {
+      window.addEventListener(
+        "pagehide",
+        (event) => {
+          stopLoop();
+          resizeObserver.disconnect();
+          io.disconnect();
+          if (!event.persisted) {
+            // Real unload — destroy WebGL resources
+            geometries.forEach((g) => g.dispose());
+            items.forEach((item) =>
+              (item.mesh.material as THREE.Material).dispose(),
+            );
+            materials.forEach((m) => m.dispose());
+            renderer.forceContextLoss();
+            renderer.dispose();
+          }
+          // event.persisted = true → bfcache: keep WebGL alive, just pause
+        },
+        { once: true },
+      );
+    }
+    setupCleanup();
+
+    // ── Restore from bfcache ─────────────────────────────────────────────
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) {
+        if (canvas.parentElement) {
+          resizeObserver.observe(canvas.parentElement);
+          io.observe(canvas.parentElement);
+        }
+        resize();
+        distributeItems();
+        setupCleanup();
+      }
+    });
 
     resize();
     distributeItems(); // position springs after aspect ratio is known
