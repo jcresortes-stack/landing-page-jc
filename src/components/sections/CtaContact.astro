@@ -36,6 +36,7 @@ const hasBg = contact.backgroundMedia != null;
 <section
   id="contacto"
   class="relative section-pad bg-depth-primary text-white overflow-hidden"
+  data-track-view="contacto"
 >
   <!-- Static fallback background: keeps text readable if the 3D canvas fails -->
   <div
@@ -96,7 +97,7 @@ const hasBg = contact.backgroundMedia != null;
       </p>
 
       <div class="flex flex-wrap gap-4 justify-center">
-        <Button href={whatsappUrl} variant="whatsapp" size="md" external>
+        <Button href={whatsappUrl} variant="whatsapp" size="md" external data-umami-event="cta-whatsapp-ctacontact">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -117,6 +118,7 @@ const hasBg = contact.backgroundMedia != null;
           variant="outline-white"
           size="md"
           external
+          data-umami-event="cta-maps-ctacontact"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

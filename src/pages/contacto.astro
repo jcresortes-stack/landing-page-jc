@@ -34,7 +34,7 @@ const mailtoUrl = settings.email
     />
 
     <!-- Contact detail block -->
-    <section class="section-pad bg-white">
+    <section class="section-pad bg-white" data-track-view="contacto-canales">
       <div class="container-jc">
         <!-- Intro -->
         <div class="mb-10 flex flex-col gap-3 max-w-xl">
@@ -103,13 +103,14 @@ const mailtoUrl = settings.email
                 <a
                   href={`tel:${settings.phone}`}
                   class="inline-flex items-center gap-2 text-[0.9375rem] font-semibold text-foreground hover:text-[#25D366] transition-colors"
+                  data-umami-event="contacto-tel-click"
                 >
                   {settings.phone}
                 </a>
               )
             }
 
-            <Button href={whatsappUrl} variant="whatsapp" size="sm" external>
+            <Button href={whatsappUrl} variant="whatsapp" size="sm" external data-umami-event="contacto-whatsapp-click">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -168,12 +169,13 @@ const mailtoUrl = settings.email
                   <a
                     href={`mailto:${settings.email}`}
                     class="inline-flex items-center gap-2 text-[0.9375rem] font-semibold text-foreground hover:text-primary transition-colors break-all"
+                    data-umami-event="contacto-email-display-click"
                   >
                     {settings.email}
                   </a>
                 )}
 
-                <Button href={mailtoUrl} variant="outline" size="sm">
+                <Button href={mailtoUrl} variant="outline" size="sm" data-umami-event="contacto-email-cta">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="14"
@@ -255,6 +257,7 @@ const mailtoUrl = settings.email
               variant="outline"
               size="sm"
               external
+              data-umami-event="contacto-maps-click"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

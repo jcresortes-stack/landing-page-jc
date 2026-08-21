@@ -1,5 +1,6 @@
 ---
 import { getEntry } from 'astro:content';
+import Analytics from '../components/Analytics.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -187,5 +188,6 @@ const keywords = s.seo.keywords?.join(', ') ?? '';
   </head>
   <body class="bg-white text-foreground font-body antialiased">
     <slot />
+    <Analytics />
   </body>
 </html>

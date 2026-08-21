@@ -100,6 +100,8 @@ const resolvedPhotos = await Promise.all(
               data-lb-open={galleryId}
               data-lb-index={i}
               aria-label={`Ampliar: ${photo.alt}`}
+              data-umami-event="gallery-open"
+              data-umami-event-index={i}
             >
               {resolveImage(photo.src) ? (
                 <Image
@@ -179,6 +181,7 @@ const resolvedPhotos = await Promise.all(
       class="absolute top-4 right-4 text-white/60 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
       data-lb-close={galleryId}
       aria-label="Cerrar visor"
+      data-umami-event="gallery-close"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
         fill="none" stroke="currentColor" stroke-width="2"
@@ -196,6 +199,8 @@ const resolvedPhotos = await Promise.all(
           class="shrink-0 text-white/50 hover:text-white p-2 sm:p-3 rounded-full hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           data-lb-prev={galleryId}
           aria-label="Imagen anterior"
+          data-umami-event="gallery-nav"
+          data-umami-event-direction="prev"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2"
@@ -224,6 +229,8 @@ const resolvedPhotos = await Promise.all(
           class="shrink-0 text-white/50 hover:text-white p-2 sm:p-3 rounded-full hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           data-lb-next={galleryId}
           aria-label="Imagen siguiente"
+          data-umami-event="gallery-nav"
+          data-umami-event-direction="next"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2"

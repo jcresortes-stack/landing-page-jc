@@ -41,7 +41,7 @@ const alignClass =
           <nav aria-label="Breadcrumb">
             <ol class="flex items-center gap-2 text-[0.7rem] text-white/40 font-heading uppercase tracking-widest">
               <li>
-                <a href="/" class="hover:text-white/70 transition-colors">
+                <a href="/" class="hover:text-white/70 transition-colors" data-umami-event="breadcrumb-inicio">
                   Inicio
                 </a>
               </li>
@@ -68,6 +68,8 @@ const alignClass =
                       <a
                         href={crumb.href}
                         class="hover:text-white/70 transition-colors"
+                        data-umami-event="breadcrumb-link"
+                        data-umami-event-target={crumb.href}
                       >
                         {crumb.label}
                       </a>

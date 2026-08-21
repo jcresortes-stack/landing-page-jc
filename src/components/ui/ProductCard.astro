@@ -22,7 +22,7 @@ const base =
 
 {
   href ? (
-    <a href={href} class={`${base} ${className}`}>
+    <a href={href} class={`${base} ${className}`} data-umami-event="product-card-click" data-umami-event-product={productId ?? name}>
       <div
         class="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg z-10"
         aria-hidden="true"

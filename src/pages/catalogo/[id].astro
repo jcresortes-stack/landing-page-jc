@@ -142,7 +142,7 @@ const breadcrumbSchema = {
     />
 
     <!-- Product detail: 3D viewer + specs -->
-    <section class="section-pad bg-surface">
+    <section class="section-pad bg-surface" data-track-view="catalogo-detalle">
       <div class="container-jc">
         <div
           class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start"
@@ -192,6 +192,8 @@ const breadcrumbSchema = {
                   aria-pressed="true"
                   data-for={product.id}
                   data-type="3d"
+                  data-umami-event="producto-media-toggle"
+                  data-umami-event-type="3d"
                 >
                   <div class="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-2">
                     <svg
@@ -222,6 +224,8 @@ const breadcrumbSchema = {
                     data-type="photo"
                     data-src={photo.resolvedSrc}
                     data-alt={photo.alt}
+                    data-umami-event="producto-media-toggle"
+                    data-umami-event-type="photo"
                   >
                     <img
                       src={photo.resolvedSrc}
@@ -334,7 +338,7 @@ const breadcrumbSchema = {
 
             <!-- CTA -->
             <div class="pt-2">
-              <Button href={whatsappUrl} variant="whatsapp" size="lg" external>
+              <Button href={whatsappUrl} variant="whatsapp" size="lg" external data-umami-event="cta-whatsapp-producto" data-umami-event-product={product.id}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -375,6 +379,8 @@ const breadcrumbSchema = {
               <a
                 href={`/catalogo/${rel.id}`}
                 class="group flex flex-col gap-3 bg-surface border border-muted rounded-lg p-6 relative overflow-hidden hover:border-primary/40 hover:shadow-card transition-all duration-300"
+                data-umami-event="producto-relacionado-click"
+                data-umami-event-product={rel.id}
               >
                 <div
                   class="absolute left-0 top-0 bottom-0 w-1 bg-primary/60 group-hover:bg-primary rounded-l-lg transition-colors duration-200"

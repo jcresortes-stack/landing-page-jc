@@ -1,0 +1,60 @@
+---
+// Umami Analytics — analítica de visitas anónima (sin cookies).
+//
+// ID y URL del script salen de variables de entorno, resueltas en build time
+// (ver .env.example / src/env.d.ts). Si falta alguna, este componente no
+// renderiza nada — build/dev siguen funcionando igual que sin analítica.
+//
+// El loader usa `defer` (recomendación oficial de Umami): no bloquea el
+// parseo del HTML y se ejecuta justo antes de DOMContentLoaded, así que no
+// afecta el tiempo de carga percibido de la página.
+//
+// Además del pageview automático de Umami, este componente registra un
+// evento personalizado `section-view` por cada elemento con el atributo
+// `data-track-view="<slug>"` que entra al viewport, y Umami detecta solo
+// (sin JS adicional) cualquier elemento con `data-umami-event="<nombre>"`
+// como un evento de clic — ver README.md para la convención de nombres.
+const websiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
+const scriptUrl = import.meta.env.PUBLIC_UMAMI_SCRIPT_URL;
+const enabled = Boolean(websiteId && scriptUrl);
+---
+
+{enabled && (
+  <>
+    <script is:inline id="umami-analytics" defer src={scriptUrl} data-website-id={websiteId}></script>
+    <script is:inline>
+      (function () {
+        function trackSectionViews() {
+          if (!window.umami) return;
+          var sections = document.querySelectorAll('[data-track-view]');
+          if (!sections.length) return;
+
+          var io = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                io.unobserve(entry.target);
+                window.umami.track('section-view', {
+                  section: entry.target.getAttribute('data-track-view'),
+                  page: location.pathname,
+                });
+              });
+            },
+            { threshold: 0.3 },
+          );
+
+          sections.forEach(function (el) {
+            io.observe(el);
+          });
+        }
+
+        var loader = document.getElementById('umami-analytics');
+        if (window.umami) {
+          trackSectionViews();
+        } else if (loader) {
+          loader.addEventListener('load', trackSectionViews);
+        }
+      })();
+    </script>
+  </>
+)}
