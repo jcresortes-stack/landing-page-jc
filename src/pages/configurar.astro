@@ -14,7 +14,7 @@ const whatsappNumber = settings.whatsapp.number;
 
 <BaseLayout
   title="Configurador de resortes — JC Resortes | Crea tu resorte a medida"
-  description="Diseña tu resorte industrial personalizado: define altura, diámetro de alambre, radio y espiras. Visualización 3D en tiempo real y descarga directa del modelo STL."
+  description="Diseña tu resorte industrial personalizado: define altura, diámetro de alambre, diámetro del resorte y espiras. Visualización 3D en tiempo real y descarga directa del modelo STL."
 >
   <Header settings={settings} whatsappUrl={whatsappUrl} />
 
@@ -99,15 +99,15 @@ const whatsappNumber = settings.whatsapp.number;
                 <div class="config-range-labels"><span>0.5 mm</span><span>15 mm</span></div>
               </div>
 
-              <!-- Radio del resorte -->
+              <!-- Diámetro del resorte -->
               <div class="config-param">
                 <div class="config-param-header">
-                  <label class="config-label" for="inp-radius">Radio del resorte</label>
-                  <span class="config-value"><output id="out-radius">20</output> mm</span>
+                  <label class="config-label" for="inp-diameter">Diámetro del resorte</label>
+                  <span class="config-value"><output id="out-diameter">40</output> mm</span>
                 </div>
-                <input type="range" id="inp-radius" class="config-slider"
-                       min="3" max="100" step="1" value="20">
-                <div class="config-range-labels"><span>3 mm</span><span>100 mm</span></div>
+                <input type="range" id="inp-diameter" class="config-slider"
+                       min="6" max="200" step="1" value="40">
+                <div class="config-range-labels"><span>6 mm</span><span>200 mm</span></div>
               </div>
 
               <!-- Cantidad de espiras -->
@@ -521,15 +521,15 @@ const whatsappNumber = settings.whatsapp.number;
   const section  = document.getElementById('configurador') as HTMLElement;
   const wNum     = section?.dataset.whatsapp ?? '';
 
-  const inpHeight = document.getElementById('inp-height') as HTMLInputElement;
-  const inpWire   = document.getElementById('inp-wire')   as HTMLInputElement;
-  const inpRadius = document.getElementById('inp-radius') as HTMLInputElement;
-  const inpTurns  = document.getElementById('inp-turns')  as HTMLInputElement;
+  const inpHeight   = document.getElementById('inp-height')   as HTMLInputElement;
+  const inpWire     = document.getElementById('inp-wire')     as HTMLInputElement;
+  const inpDiameter = document.getElementById('inp-diameter') as HTMLInputElement;
+  const inpTurns    = document.getElementById('inp-turns')    as HTMLInputElement;
 
-  const outHeight = document.getElementById('out-height') as HTMLOutputElement;
-  const outWire   = document.getElementById('out-wire')   as HTMLOutputElement;
-  const outRadius = document.getElementById('out-radius') as HTMLOutputElement;
-  const outTurns  = document.getElementById('out-turns')  as HTMLOutputElement;
+  const outHeight   = document.getElementById('out-height')   as HTMLOutputElement;
+  const outWire     = document.getElementById('out-wire')     as HTMLOutputElement;
+  const outDiameter = document.getElementById('out-diameter') as HTMLOutputElement;
+  const outTurns    = document.getElementById('out-turns')    as HTMLOutputElement;
 
   const btnDl  = document.getElementById('btn-download') as HTMLButtonElement;
   const btnWa  = document.getElementById('btn-whatsapp') as HTMLAnchorElement;
@@ -583,10 +583,10 @@ const whatsappNumber = settings.whatsapp.number;
   // ── Params ───────────────────────────────────────────────────────────────────
   function getParams() {
     return {
-      height: +inpHeight.value,   // mm
-      wire:   +inpWire.value,     // mm (diameter)
-      radius: +inpRadius.value,   // mm
-      turns:  +inpTurns.value,
+      height:   +inpHeight.value,   // mm
+      wire:     +inpWire.value,     // mm (diameter)
+      diameter: +inpDiameter.value, // mm (diameter del bobinado, medida de borde a borde)
+      turns:    +inpTurns.value,
     };
   }
 
@@ -594,13 +594,13 @@ const whatsappNumber = settings.whatsapp.number;
   function enforceConstraints() {
     let clamped = false;
 
-    const radius = +inpRadius.value;
-    const height = +inpHeight.value;
-    const wire   = +inpWire.value;
-    const turns  = +inpTurns.value;
+    const diameter = +inpDiameter.value;
+    const height   = +inpHeight.value;
+    const wire     = +inpWire.value;
+    const turns    = +inpTurns.value;
 
     // Regla 1: alambre no puede superar el 92 % del diámetro del bobinado
-    const maxWire = Math.min(15, radius * 1.85);
+    const maxWire = Math.min(15, diameter * 0.92);
     if (wire > maxWire) {
       const clampedWire = Math.round(maxWire * 10) / 10;
       inpWire.value = String(clampedWire);
@@ -627,15 +627,19 @@ const whatsappNumber = settings.whatsapp.number;
       clearTimeout((enforceConstraints as any)._t);
       (enforceConstraints as any)._t = window.setTimeout(() => {
         badgeWrap.classList.remove('canvas-badge--warn');
-        const { radius: r, height: h } = getParams();
-        badgeEl.textContent = `Ø ${r * 2} × ${h} mm`;
+        const { diameter: d, height: h } = getParams();
+        badgeEl.textContent = `Ø ${d} × ${h} mm`;
       }, 1500);
     }
   }
 
 
   function rebuildSpring() {
-    const { height, wire, radius, turns } = getParams();
+    const { height, wire, diameter, turns } = getParams();
+    // El helicoide se define matemáticamente por su radio (cos/sin × radio),
+    // por eso se deriva aquí a partir del diámetro que controla el usuario.
+    const radius = diameter / 2;
+
     if (currentGeo) currentGeo.dispose();
     if (currentMesh) scene.remove(currentMesh);
 
@@ -654,10 +658,10 @@ const whatsappNumber = settings.whatsapp.number;
     controls.update();
 
     // Badge
-    badgeEl.textContent = `Ø ${radius * 2} × ${height} mm`;
+    badgeEl.textContent = `Ø ${diameter} × ${height} mm`;
 
     // WhatsApp dynamic message
-    const msg = `Hola, quiero cotizar un resorte con estos parámetros:\n- Altura: ${height} mm\n- Diámetro alambre: ${wire} mm\n- Radio: ${radius} mm\n- Espiras: ${turns}`;
+    const msg = `Hola, quiero cotizar un resorte con estos parámetros:\n- Altura: ${height} mm\n- Diámetro alambre: ${wire} mm\n- Diámetro del resorte: ${diameter} mm\n- Espiras: ${turns}`;
     btnWa.href = `https://wa.me/${wNum}?text=${encodeURIComponent(msg)}`;
 
     loaderEl.classList.add('hidden');
@@ -678,15 +682,16 @@ const whatsappNumber = settings.whatsapp.number;
     });
   }
 
-  wireSlider(inpHeight, outHeight);
-  wireSlider(inpWire,   outWire,   (v) => String(v));
-  wireSlider(inpRadius, outRadius);
-  wireSlider(inpTurns,  outTurns);
+  wireSlider(inpHeight,   outHeight);
+  wireSlider(inpWire,     outWire,     (v) => String(v));
+  wireSlider(inpDiameter, outDiameter);
+  wireSlider(inpTurns,    outTurns);
   enforceConstraints(); // verificar valores iniciales al cargar la página
 
   // ── STL download ─────────────────────────────────────────────────────────────
   btnDl.addEventListener('click', () => {
-    const { height, wire, radius, turns } = getParams();
+    const { height, wire, diameter, turns } = getParams();
+    const radius = diameter / 2; // radio real requerido por la geometría del helicoide
     // Export at 1:1 mm scale (fixed high-quality segments)
     const exportGeo = buildSpringGeo(height, radius, wire / 2, turns, STL_SEGS, STL_RADIAL_SEGS);
     const exportMesh = new THREE.Mesh(exportGeo);
@@ -700,7 +705,7 @@ const whatsappNumber = settings.whatsapp.number;
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `resorte-jc-${height}x${radius}mm.stl`;
+    a.download = `resorte-jc-${height}x${diameter}mm.stl`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
